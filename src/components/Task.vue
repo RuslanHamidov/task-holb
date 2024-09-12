@@ -67,13 +67,10 @@ body {
 }
 
 .tasks {
-  margin: 0;
+  margin: 20px auto;
   padding: 20px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
+  width: 90%;
+  max-width: 400px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 15px 50px rgba(0, 0, 0, .2);
@@ -82,7 +79,7 @@ body {
 .today-header {
   margin: 0 0 15px;
   padding: 10px 0;
-  font-size: 25px;
+  font-size: 20px;
   font-weight: bold;
   color: #333;
   border-bottom: 2px solid #ddd;
@@ -93,6 +90,9 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+ul {
+  padding: 0;
+}
 
 ul li {
   position: relative;
@@ -114,8 +114,8 @@ ul li:hover {
 ul li .description {
   color: #262626;
   text-decoration: none;
-  font-size: 18px;
-  margin-left: 80px;
+  font-size: 16px;
+  margin-left: 70px;
   white-space: pre-wrap;
   word-break: break-word;
   flex-grow: 1;
@@ -123,8 +123,8 @@ ul li .description {
 
 ul li .date {
   position: absolute;
-  left: 10px;
-  width: 60px;
+  left: 5px;
+  width: 50px;
   text-align: center;
 }
 
@@ -135,8 +135,8 @@ ul li .date::before {
   left: 0;
   width: 100%;
   height: 0;
-  border-top: 22px solid #e2574c;
-  border-bottom: 45px solid #e4e7e7;
+  border-top: 18px solid #e2574c;
+  border-bottom: 36px solid #e4e7e7;
   z-index: 1;
   border-radius: 5px;
 }
@@ -145,14 +145,42 @@ ul li .date h3 {
   position: relative;
   z-index: 2;
   margin-top: -6px;
-  font-size: 16px;
+  font-size: 14px;
   color: #fff;
-  line-height: 36px;
+  line-height: 30px;
 }
 
 ul li .date h3 span {
-  font-size: 28px;
+  font-size: 24px;
   color: #324d5b;
 }
-</style>
 
+@media (max-width: 480px) {
+  .tasks {
+    width: 95%;
+    padding: 10px;
+  }
+
+  .today-header {
+    font-size: 18px;
+  }
+
+  ul li .description {
+    font-size: 14px;
+    margin-left: 60px;
+  }
+
+  ul li .date {
+    width: 45px;
+  }
+
+  ul li .date h3 {
+    font-size: 12px;
+    line-height: 24px;
+  }
+
+  ul li .date h3 span {
+    font-size: 20px;
+  }
+}
+</style>
