@@ -1,174 +1,118 @@
 <template>
-    <button @click="goToHomePage">Go back to Home Page</button>
-    <h2>You are on test page</h2>
-
   <div class="card">
-    <div class="top">
-      <p>Drag & drop images</p>
+    <button @click="goToHomePage" class="home-button">Go back to Home Page</button>
+    <h2>You are on the test page</h2>
+
+    <div class="upload-area">
+      <p>Choose images to upload:</p>
+      <input type="file" ref="fileInput" @change="onFileSelect" multiple class="upload-input" />
     </div>
-    <div class="drag-area">
-      <span v-if="!isDragging">
-        Drag & drop images here or
-        <span class="select" role="button" @click="selectFiles">
-          Choose
-        </span>        
-      </span>
-        <div v-else class="select">Drop images here</div>
-        <input name="file" type="file" class="file" ref="fileInput" multiple @change="onFileSelect">
-    </div>
-    <div class="container">
-      <div class="image" v-for="(images, index) in images" :key="index">
-        <span class="delete">&times;</span>
-        <img :src="image.url">
+
+    <div class="image-container">
+      <div v-for="(image, index) in images" :key="index" class="image">
+        <span class="delete" @click="deleteImage(index)">&times;</span>
+        <img :src="image.url" alt="Uploaded image" />
       </div>
     </div>
-    <button type="button">Upload</button>
   </div>
-
-
-
 </template>
 
 <script>
 export default {
-  name: 'TestPage',
+  name: 'AdminPage',
 
   data() {
     return {
-      images: [],
-      isDragging: false
-    }
- 
+      images: []
+    };
   },
 
   methods: {
     goToHomePage() {
+      // Save images to localStorage before navigating
+      localStorage.setItem('uploadedImages', JSON.stringify(this.images));
       this.$router.push('/');
-    },
-    selectFiles() {
-      this.$refs.fileInput.click();
     },
     onFileSelect(event) {
       const files = event.target.files;
-      if(files.length === 0) return;
+      if (files.length === 0) return;
       for (let i = 0; i < files.length; i++) {
-        if(files[i].type.split("/") != "image") continue;
-        if(!this.images.some((e) => e.name === files[i].name)){
-          this.images.push({name: files[i].name, url:URL.createObjectURL(files[i])});
+        if (files[i].type.split("/")[0] !== "image") continue;
+        if (!this.images.some(e => e.name === files[i].name)) {
+          this.images.push({ file: files[i], name: files[i].name, url: URL.createObjectURL(files[i]) });
         }
       }
+    },
+    deleteImage(index) {
+      URL.revokeObjectURL(this.images[index].url);
+      this.images.splice(index, 1);
     }
   }
 };
 </script>
 
-
-<style>
+<style scoped>
 .card {
   width: 100%;
-  padding: 10px;
-  box-shadow: 0 0 5px #ffdfdf;
-  border-radius: 5px;
+  padding: 20px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
   overflow: hidden;
+  background: #fff;
+  margin: 20px auto;
+  max-width: 600px;
 }
 
-.card .top {
-  text-align: center;
-}
-
-.card p {
-  font-weight: bold;
-  color: #fe0000;
-}
-
-.card button {
-  outline: 0;
-  border: 0;
+.home-button {
+  background-color: #fe0000;
   color: #fff;
-  border-radius: 4px;
-  font-weight: 400;
-  padding: 8px 13px;
-  width: 100%;
-  background: #fe0000;
-}
-
-
-.card .drag-area {
-  height: 150px;
+  border: none;
   border-radius: 5px;
-  border: 2px dashed #fe0000;
-  background: #f4f3f9;
-  color: #fe0000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: center;
-  -webkit-user-select: none;
-  margin-top: 10px;
-}
-
-.card .drag-area .visible {
-  font-size: 10px;
-}
-
-.card .select {
-  color: #5256ad;
-  margin-left: 5px;
+  padding: 10px 15px;
+  font-size: 16px;
   cursor: pointer;
-  transition: 0.4s;
+  margin-bottom: 20px;
 }
 
-.card .select:hover {
-  opacity: 0.6;
+.home-button:hover {
+  background-color: #e60000;
 }
 
-.card .container {
+.upload-area {
+  margin-bottom: 20px;
+}
+
+.upload-input {
+  font-size: 16px;
+}
+
+.image-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.image {
+  position: relative;
+  width: 100%;
+  max-width: 150px;
+  margin: 5px;
+}
+
+.image img {
   width: 100%;
   height: auto;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  max-height: 200px;
-  position: relative;
-  margin-bottom: 8px;
-}
-
-.card .container .image {
-  width: 75px;
-  margin-right: 5px;
-  height: 75px;
-  position: relative;
-  margin-bottom: 8px;
-}
-
-
-
-.card .container .image img {
-  width: 100%;
-  height: 100%;
   border-radius: 5px;
-}
-
-.card .container .image span {
-  position: absolute;
-  top: -2px;
-  right: 9px;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.card input,
-.card .drag-area .on-drop,
-.card .drag-area.dragover .visible {
-  display: none;
 }
 
 .delete {
-  z-index: 999;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 20px;
   color: #fe0000;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  padding: 2px 5px;
 }
-
-
-
 </style>

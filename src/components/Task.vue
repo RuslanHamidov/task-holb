@@ -1,11 +1,9 @@
 <template>
   <div>
-    <button @click="goToOtherPage">Go to Other Page</button>
-  </div>
-  <div>
-    <div>
+    <button @click="goToOtherPage" class="navigate-button">Go to Other Page</button>
+    <div v-if="currentView === 'tasks'">
+      <h2 class="today-header">Upcoming Events</h2>
       <ul class="tasks">
-        <h2 class="today-header">Upcoming Events</h2>
         <li v-for="task in tasks" :key="task.id" class="single-task">
           <div class="task">
             <div class="date">
@@ -15,6 +13,12 @@
           </div>
         </li>
       </ul>
+    </div>
+    <div v-else class="image-container">
+      <p class="image-caption">Uploaded Image</p>
+      <div v-for="(image, index) in images" :key="index" class="image-frame">
+        <img :src="image.url" alt="Uploaded image" class="uploaded-image"/>
+      </div>
     </div>
   </div>
 </template>
@@ -26,14 +30,17 @@ export default {
   data() {
     return {
       tasks: null,
-      error: null
+      images: JSON.parse(localStorage.getItem('uploadedImages')) || [],
+      error: null,
+      currentView: 'tasks'
     };
   },
   mounted() {
     this.fetchData();
+    this.startViewSwitch();
   },
   methods: {
-     goToOtherPage() {
+    goToOtherPage() {
       this.$router.push('/test');
     },
     getMonth(due_date) {
@@ -53,6 +60,11 @@ export default {
         this.error = error;
         console.error('Error fetching data:', error);
       }
+    },
+    startViewSwitch() {
+      setInterval(() => {
+        this.currentView = this.currentView === 'tasks' ? 'images' : 'tasks';
+      }, 10000); // Switch every 10 seconds
     }
   }
 };
@@ -73,7 +85,7 @@ body {
   max-width: 400px;
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, .2);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
 }
 
 .today-header {
@@ -99,7 +111,7 @@ ul li {
   list-style: none;
   padding: 10px 0;
   border-radius: 4px;
-  border-bottom: 1px solid rgba(0, 0, 0, .1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   min-height: 60px;
@@ -155,32 +167,47 @@ ul li .date h3 span {
   color: #324d5b;
 }
 
-@media (max-width: 480px) {
-  .tasks {
-    width: 95%;
-    padding: 10px;
-  }
+.navigate-button {
+  background-color: #fe0000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 20px;
+  display: inline-block;
+  text-align: center;
+}
 
-  .today-header {
-    font-size: 18px;
-  }
+.navigate-button:hover {
+  background-color: #e60000;
+}
 
-  ul li .description {
-    font-size: 14px;
-    margin-left: 60px;
-  }
+.image-container {
+  text-align: center;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 600px;
+}
 
-  ul li .date {
-    width: 45px;
-  }
+.image-caption {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+}
 
-  ul li .date h3 {
-    font-size: 12px;
-    line-height: 24px;
-  }
+.image-frame {
+  display: inline-block;
+  border: 2px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fff;
+}
 
-  ul li .date h3 span {
-    font-size: 20px;
-  }
+.uploaded-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 </style>
