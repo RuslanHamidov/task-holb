@@ -2,12 +2,10 @@
   <div class="card">
     <button @click="goToHomePage" class="home-button">Go back to Home Page</button>
     <h2>You are on the test page</h2>
-
     <div class="upload-area">
       <p>Choose images to upload:</p>
       <input type="file" ref="fileInput" @change="onFileSelect" multiple class="upload-input" />
     </div>
-
     <div class="image-container">
       <div v-for="(image, index) in images" :key="index" class="image">
         <span class="delete" @click="deleteImage(index)">&times;</span>
@@ -20,32 +18,53 @@
 <script>
 export default {
   name: 'AdminPage',
-
   data() {
     return {
       images: []
     };
   },
-
+  mounted() {
+    this.loadImagesFromLocalStorage();
+  },
   methods: {
-    goToHomePage() {
-      // Save images to localStorage before navigating
+    loadImagesFromLocalStorage() {
+      const savedImages = localStorage.getItem('uploadedImages');
+      if (savedImages) {
+        this.images = JSON.parse(savedImages);
+      }
+    },
+    saveImagesToLocalStorage() {
       localStorage.setItem('uploadedImages', JSON.stringify(this.images));
+    },
+    goToHomePage() {
+      this.saveImagesToLocalStorage();
       this.$router.push('/');
     },
     onFileSelect(event) {
       const files = event.target.files;
       if (files.length === 0) return;
-      for (let i = 0; i < files.length; i++) {
-        if (files[i].type.split("/")[0] !== "image") continue;
-        if (!this.images.some(e => e.name === files[i].name)) {
-          this.images.push({ file: files[i], name: files[i].name, url: URL.createObjectURL(files[i]) });
-        }
-      }
+      
+      Array.from(files).forEach(file => {
+        if (file.type.split("/")[0] !== "image") return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newImage = {
+            name: file.name,
+            url: e.target.result
+          };
+          
+          if (!this.images.some(img => img.name === newImage.name)) {
+            this.images.push(newImage);
+            this.saveImagesToLocalStorage();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     },
     deleteImage(index) {
-      URL.revokeObjectURL(this.images[index].url);
       this.images.splice(index, 1);
+      this.saveImagesToLocalStorage();
     }
   }
 };

@@ -1,3 +1,4 @@
+// Task.vue
 <template>
   <div>
     <button @click="goToOtherPage" class="navigate-button">Go to Other Page</button>
@@ -15,10 +16,10 @@
       </ul>
     </div>
     <div v-else class="image-container">
-      <p class="image-caption">Uploaded Image</p>
-      <div v-for="(image, index) in images" :key="index" class="image-frame">
-        <img :src="image.url" alt="Uploaded image" class="uploaded-image"/>
-      </div>
+    <p class="image-caption">Uploaded Images</p>
+    <div v-for="(image, index) in images" :key="index" class="image-frame">
+      <img :src="image.url" :alt="image.name" class="uploaded-image"/>
+    </div>
     </div>
   </div>
 </template>
@@ -30,12 +31,14 @@ export default {
   data() {
     return {
       tasks: null,
-      images: JSON.parse(localStorage.getItem('uploadedImages')) || [],
+      images: [],
       error: null,
       currentView: 'tasks'
     };
   },
   mounted() {
+    console.log("Mounted Task.vue");
+    this.loadImagesFromLocalStorage();
     this.fetchData();
     this.startViewSwitch();
   },
@@ -56,6 +59,7 @@ export default {
       try {
         const response = await axios.get(url);
         this.tasks = response.data;
+        console.log("Fetched tasks:", this.tasks);
       } catch (error) {
         this.error = error;
         console.error('Error fetching data:', error);
@@ -63,12 +67,26 @@ export default {
     },
     startViewSwitch() {
       setInterval(() => {
+        console.log("Switching view. Current view:", this.currentView);
         this.currentView = this.currentView === 'tasks' ? 'images' : 'tasks';
-      }, 10000); // Switch every 10 seconds
+      }, 10000);
+    },
+    loadImagesFromLocalStorage() {
+      const savedImages = localStorage.getItem('uploadedImages');
+      if (savedImages) {
+        this.images = JSON.parse(savedImages);
+        console.log("Loaded images from localStorage:", this.images);
+      }
+    }
+  },
+  watch: {
+    '$route'() {
+      this.loadImagesFromLocalStorage();
     }
   }
 };
 </script>
+
 
 <style scoped>
 body {
